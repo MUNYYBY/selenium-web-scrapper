@@ -1,11 +1,15 @@
-# app.py
 from flask import Flask, request, jsonify
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from Drivers.chrome_driver import init_chrome_driver
 
 app = Flask(__name__)
+
+# Initialize global variables for ChromeDriver
+chrome_service, chrome_options = init_chrome_driver()
+
+@app.route("/", methods=['GET'])
+def root():
+    return 'You have reached web scrapper'
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
@@ -13,15 +17,8 @@ def scrape():
     if not url:
         return jsonify({'error': 'URL is required'}), 400
 
-    # Setup Chrome options for headless browsing
-    options = Options()
-    options.headless = True
-
-    # Fetch the appropriate ChromeDriver
-    service = Service(ChromeDriverManager().install())
-    
     try:
-        driver = webdriver.Chrome(service=service, options=options)
+        driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
         driver.get(url)
         
         # Extract textual content from the page
