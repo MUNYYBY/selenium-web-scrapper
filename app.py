@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from selenium import webdriver
 from Drivers.chrome_driver import init_chrome_driver
+from Utils.clean_text import clean_text
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
@@ -9,7 +11,7 @@ chrome_service, chrome_options = init_chrome_driver()
 
 @app.route("/", methods=['GET'])
 def root():
-    return 'You have reached web scrapper'
+    return 'You have reached web scraper'
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
@@ -21,12 +23,20 @@ def scrape():
         driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
         driver.get(url)
         
-        # Extract textual content from the page
-        content = driver.page_source
-        # For a more specific extraction, adjust this part
-        text_content = content  # Placeholder for actual content extraction
-
-        return jsonify({'content': text_content})
+        # Get the page source
+        page_source = driver.page_source
+        
+        # Parse the HTML with BeautifulSoup
+        soup = BeautifulSoup(page_source, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style", "svg", "head"]):
+            script.decompose()
+        
+        # Get text
+        text = soup.get_text()        
+        
+        return jsonify({'content': text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
