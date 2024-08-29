@@ -1,0 +1,25 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+
+# Virtual environment directory
+venv/
+
+# Flask specific files
+instance/
+.env
+
+# ChromeDriver binaries (managed by webdriver_manager)
+chromedriver*
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Operating system-specific files
+.DS_Store
+Thumbs.db
